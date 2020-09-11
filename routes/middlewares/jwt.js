@@ -11,6 +11,7 @@ function jwt() {
     }).unless({
         path: [///api/v2
             { url: /^\/api\/v2\/.*/, methods: ['GET'] },
+            { url: "/api/v1/addressToHex", methods: ['POST'] },
             { url: "/api/v1/login", methods: ['POST'] },
             { url: "/api/v1/register", methods: ['POST'] }
         ]
@@ -18,7 +19,7 @@ function jwt() {
 }
 async function isRevoked(req, payload, done) {
     //console.log("payload.userId  ",payload.userId);
-    req.headers['userId']=payload.userId;
+    req.headers['userId'] = payload.userId;
     //console.log("req  ",req.headers);
     // const user = await userService.getUserById(payload.sub);
     // if (!user.data) {

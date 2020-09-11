@@ -4,11 +4,21 @@ const Joi = require('joi');
 const globalFunction = require('../../utils/globalFunction');
 const jwt = require('jsonwebtoken');
 const serviceUser = require('../services/serviceUser');
-const  settings = require('../../config/settings');
-const  CONSTANTS = require('../../utils/constants');
+const settings = require('../../config/settings');
+const CONSTANTS = require('../../utils/constants');
 const CONSTANTS_MSG = require('../../utils/constantsMessage');
 const apiSuccessRes = globalFunction.apiSuccessRes;
 const apiErrorRes = globalFunction.apiErrorRes;
+
+const TronWeb = require('tronweb')
+const HttpProvider = TronWeb.providers.HttpProvider;
+const fullNode = new HttpProvider("https://api.trongrid.io");
+const solidityNode = new HttpProvider("https://api.trongrid.io");
+const eventServer = new HttpProvider("https://api.trongrid.io");
+const privateKey = "3481E79956D4BD95F358AC96D151C976392FC4E3FC132F78A847906DE588C145";
+const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
+
+
 async function register(req, res) {
   const registerParamSchema = Joi.object({
     password: Joi.string().required(),
@@ -76,9 +86,9 @@ async function login(req, res) {
   //console.log("there are the response", userData);
 
   if (userData.statusCode === CONSTANTS.SUCCESS) {
-    
+
     const token = jwt.sign({ userId: userData.data.id }, settings.secret);
-    let returnData={email:userData.data.email,token};
+    let returnData = { email: userData.data.email, token };
     return apiSuccessRes(req, res, CONSTANTS_MSG.LOGIN_SUCCESS, returnData);
   } else if (userData.statusCode === CONSTANTS.NOT_VERIFIED) {
     return apiErrorRes(req, res, 'Mobile is  not Verified', CONSTANTS.DATA_NULL, CONSTANTS.ERROR_CODE_TWO);
@@ -114,8 +124,8 @@ async function changepassword(req, res) {
 
   let userData = await serviceUser.verifyEmailPassword(findUserData);
   if (userData.statusCode === CONSTANTS.SUCCESS) {
-    userData.data.password=req.body.newPassword;
-      await userData.data.save();
+    userData.data.password = req.body.newPassword;
+    await userData.data.save();
     return apiSuccessRes(req, res, "Password updated successfully");
   } else if (userData.statusCode === CONSTANTS.NOT_VERIFIED) {
     return apiErrorRes(req, res, 'Mobile is  not Verified', CONSTANTS.DATA_NULL, CONSTANTS.ERROR_CODE_TWO);
@@ -127,6 +137,26 @@ async function changepassword(req, res) {
     return apiErrorRes(req, res, CONSTANTS_MSG.LOGIN_FAILURE);
   }
 }
+async function addressToHex(req, res) {
+  try {
+    const loginParamSchema = Joi.object({
+      address: Joi.string().required()
+    });
+    await loginParamSchema.validate(req.body, {
+      abortEarly: true
+    });
+  } catch (error) {
+    return apiErrorRes(req, res, 'Send valid param!!!');
+  }
+  try {
+
+    return apiSuccessRes(req, res, "Sucess", { hex: tronWeb.address.toHex(req.body.address) });
+  } catch (error) {
+    console.log("error ", error);
+    return apiErrorRes(req, res, "Invalid address provided");
+  }
+}
+router.post('/addressToHex', addressToHex);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/changepassword', changepassword);
