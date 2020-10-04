@@ -10,12 +10,14 @@ let getUserByEmail = async (email) => {
         var user = await User.findOne({
             email: email
         });
+        console.log("useruseruseruser  ",user);
         if (user === null) {
             return resultdb(CONSTANTS.NOT_FOUND, CONSTANTS.DATA_NULL)
         } else {
             return resultdb(CONSTANTS.SUCCESS, user)
         }
     } catch (error) {
+        console.log(error);
         return resultdb(CONSTANTS.SERVER_ERROR, CONSTANTS.DATA_NULL)
     }
 };

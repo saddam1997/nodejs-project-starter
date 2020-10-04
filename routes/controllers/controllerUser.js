@@ -10,16 +10,11 @@ const CONSTANTS_MSG = require('../../utils/constantsMessage');
 const apiSuccessRes = globalFunction.apiSuccessRes;
 const apiErrorRes = globalFunction.apiErrorRes;
 
-const TronWeb = require('tronweb')
-const HttpProvider = TronWeb.providers.HttpProvider;
-const fullNode = new HttpProvider("https://api.trongrid.io");
-const solidityNode = new HttpProvider("https://api.trongrid.io");
-const eventServer = new HttpProvider("https://api.trongrid.io");
-const privateKey = "3481E79956D4BD95F358AC96D151C976392FC4E3FC132F78A847906DE588C145";
-const tronWeb = new TronWeb(fullNode, solidityNode, eventServer, privateKey);
-
 
 async function register(req, res) {
+  console.log('llllllllllllllllllllllll');
+
+
   const registerParamSchema = Joi.object({
     password: Joi.string().required(),
     email: Joi.string().email().regex(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/).required()
@@ -34,7 +29,7 @@ async function register(req, res) {
     return apiErrorRes(req, res, 'Send valid param!!!');
   }
   let userData = await serviceUser.getUserByEmail(req.body.email);
-
+  console.log('llllllllllllllllllllllll');
   if (userData.statusCode === CONSTANTS.SUCCESS && userData.data.isDeleted == true) {
 
     return apiErrorRes(req, res, 'Your mobile number is deactivated from admin. Please contanct to support.', CONSTANTS.DATA_NULL, CONSTANTS.DEACTIVE_STATUS);
@@ -137,26 +132,7 @@ async function changepassword(req, res) {
     return apiErrorRes(req, res, CONSTANTS_MSG.LOGIN_FAILURE);
   }
 }
-async function addressToHex(req, res) {
-  try {
-    const loginParamSchema = Joi.object({
-      address: Joi.string().required()
-    });
-    await loginParamSchema.validate(req.body, {
-      abortEarly: true
-    });
-  } catch (error) {
-    return apiErrorRes(req, res, 'Send valid param!!!');
-  }
-  try {
 
-    return apiSuccessRes(req, res, "Sucess", { hex: tronWeb.address.toHex(req.body.address) });
-  } catch (error) {
-    console.log("error ", error);
-    return apiErrorRes(req, res, "Invalid address provided");
-  }
-}
-router.post('/addressToHex', addressToHex);
 router.post('/register', register);
 router.post('/login', login);
 router.post('/changepassword', changepassword);

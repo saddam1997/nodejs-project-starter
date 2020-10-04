@@ -7,10 +7,11 @@ dbString = dbString + '@' + dbconf.dbcredentials.address;
 dbString = dbString + ':' + dbconf.dbcredentials.port;
 dbString = dbString + '/' + dbconf.dbcredentials.database;
 
-// mongoose.connect(dbString, {
-//     useCreateIndex: true,
-//     useNewUrlParser: true
-// });
+mongoose.connect(dbString, {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 mongoose.Promise = global.Promise;
 module.exports = {
     User: require('./models/user')
