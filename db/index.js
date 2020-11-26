@@ -14,5 +14,6 @@ mongoose.connect(dbString, {
 });
 mongoose.Promise = global.Promise;
 module.exports = {
-    User: require('./models/user')
+    User: require('./models/user'),
+    Book: require('./models/Book')
 };
